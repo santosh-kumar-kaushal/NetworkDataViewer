@@ -6,6 +6,10 @@ buildscript {
         google()
         maven { url "http://jcenter.bintray.com"}
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+        maven {
+            url "https://maven.google.com" // specifically this worked
+        }
 
     }
     dependencies {
@@ -20,8 +24,12 @@ buildscript {
 allprojects {
     repositories {
         google()
+        maven {
+            url "https://maven.google.com" // specifically this worked
+        }
         maven { url "http://jcenter.bintray.com"}
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
     }
 }
 
