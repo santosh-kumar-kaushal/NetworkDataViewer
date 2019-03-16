@@ -1,29 +1,32 @@
 package assignment.coding.com.networkdataviewer.ui.modules.home;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import assignment.coding.com.networkdataviewer.R;
-import assignment.coding.com.networkdataviewer.callbacks.ConnectionCallback;
-import assignment.coding.com.networkdataviewer.callbacks.DataNotificationCallback;
 import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
-import assignment.coding.com.networkdataviewer.network.BackendService;
-import assignment.coding.com.networkdataviewer.network.Connection;
+import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
+import assignment.coding.com.networkdataviewer.ui.adapter.RecyclerViewAdapter;
 import assignment.coding.com.networkdataviewer.ui.base.BaseFragment;
-import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
+import assignment.coding.com.networkdataviewer.utils.NetworkUtil;
 
 
-public class HomeFragment extends BaseFragment<HomeMVP.View,HomePresenter> implements HomeMVP.View,DataNotificationCallback, ConnectionCallback {
+public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> implements HomeMVP.View {
 
-    private Connection connection;
-    private boolean isBounded;
+
+    RecyclerView recyclerView;
+
+    RecyclerViewAdapter recyclerViewAdapter;
+
+    ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
+
+    boolean isLoading = false;
 
     @Override
     protected int fragmentLayout() {
@@ -31,75 +34,102 @@ public class HomeFragment extends BaseFragment<HomeMVP.View,HomePresenter> imple
     }
 
     @Override
-    protected BaseMVP.Presenter getPresenter() {
-        return new HomePresenter();
+    protected HomeMVP.Presenter getPresenter() {
+        return new HomePresenter(this, getActivity());
     }
 
 
     @Override
     protected void onFragmentCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
+        //No operation here for future use.
     }
 
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Intent intent = new Intent(getActivity(), BackendService.class);
-        connection = new Connection();
-        Objects.requireNonNull(getActivity()).bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        connection.setConnectionCallback(this);
-
-    }
-
-    @Override
-    public void onSuccess() {
-
-    }
-
-    @Override
-    public void onReceive(String response) {
-        parseJsonAsObject(response);
-    }
-
-
-    /**
-     * Method used to parse user information from json string from server.
-     *
-     * @param jsonString response from server.
-     */
-    private void parseJsonAsObject(String jsonString) {
-    }
-
-    @Override
-    public void onServiceBound(boolean isBounded) {
-        this.isBounded = isBounded;
-        if (isBounded) {
-            connection.getmService().setDataNotificationCallback(this);
-            connection.getmService().new FetchJsonData().execute("pass url here");
+        if (getActivity() != null) {
+            if (NetworkUtil.isNetworkReachable(getActivity())) {
+                getPresenter().onWorkOffline(true);
+            }
         }
+        recyclerView = view.findViewById(R.id.recyclerView);
+        initAdapter();
+        initScrollListener();
+
     }
+
+
+    private void initAdapter() {
+        recyclerViewAdapter = new RecyclerViewAdapter(recordsModelArrayList);
+        recyclerView.setAdapter(recyclerViewAdapter);
+    }
+
+    private void initScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (!isLoading) {
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == recordsModelArrayList.size() - 1) {
+                        //bottom of list!
+                        getPresenter().onLoadMore();
+                        isLoading = true;
+                    }
+                }
+            }
+        });
+
+
+    }
+
+
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (isBounded)
-            Objects.requireNonNull(getActivity()).unbindService(connection);
+        // if (isBounded)
+        //   Objects.requireNonNull(getActivity()).unbindService(connection);
     }
 
     @Override
-    public void onNotifyAdapter(@Nullable ArrayList<NetworkDataModel> networkDataModels, int page) {
-
+    public void populateData(ArrayList<RecordsModel> recordsModelArrayList) {
+       recyclerViewAdapter.setRecordsModelList(recordsModelArrayList);
     }
 
     @Override
-    public void onLoadMore() {
-
+    public void onNotifyAdapter(@Nullable ArrayList<RecordsModel> networkDataModels) {
+        recyclerViewAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void notifyItemInserted(int position) {
+        recyclerViewAdapter.notifyItemInserted(position);
+    }
+
+    @Override
+    public void notifyItemRemoved(int position) {
+        recyclerViewAdapter.notifyItemRemoved(position);
+    }
+
 
     @Override
     public void onNavigateToDetails(@NonNull ArrayList<NetworkDataModel> models) {
 
+    }
+
+    @Override
+    public void isLoadingFlag(boolean isLoading) {
+        this.isLoading=isLoading;
     }
 }
 

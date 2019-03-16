@@ -11,8 +11,6 @@ public interface BaseMVP {
 
         void showProgress(@StringRes int resId);
 
-        void showBlockingProgress(@StringRes int resId);
-
         void hideProgress();
 
         void showMessage(@StringRes int titleRes, @StringRes int msgRes);

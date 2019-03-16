@@ -6,7 +6,7 @@ public class RecordsModel {
 
     private String quarter;
 
-    private Number volumeOfMobileData;
+    private double volumeOfMobileData;
 
     private int id;
 
@@ -18,11 +18,11 @@ public class RecordsModel {
         this.quarter = quarter;
     }
 
-    public Number getVolumeOfMobileData() {
+    public double getVolumeOfMobileData() {
         return volumeOfMobileData;
     }
 
-    public void setVolumeOfMobileData(Number volumeOfMobileData) {
+    public void setVolumeOfMobileData(double volumeOfMobileData) {
         this.volumeOfMobileData = volumeOfMobileData;
     }
 

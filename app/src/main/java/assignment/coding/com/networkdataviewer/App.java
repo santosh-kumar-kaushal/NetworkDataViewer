@@ -1,4 +1,4 @@
-package assignment.coding.com.networkdataviewer.ui;
+package assignment.coding.com.networkdataviewer;
 
 import android.app.Application;
 import android.support.annotation.NonNull;

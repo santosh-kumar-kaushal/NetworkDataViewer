@@ -6,14 +6,12 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.evernote.android.state.StateSaver;
-
-import androidx.annotation.StringRes;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
 
@@ -45,7 +43,6 @@ public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresent
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        StateSaver.saveInstanceState(this, outState);
         getPresenter().onSaveInstanceState(outState);
     }
 
@@ -53,7 +50,6 @@ public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresent
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            StateSaver.restoreInstanceState(this, savedInstanceState);
             getPresenter().onRestoreInstanceState(savedInstanceState);
         }
     }
@@ -82,11 +78,6 @@ public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresent
     @Override
     public void showProgress(@StringRes int resId) {
         callback.showProgress(resId);
-    }
-
-    @Override
-    public void showBlockingProgress(int resId) {
-        callback.showBlockingProgress(resId);
     }
 
     @Override

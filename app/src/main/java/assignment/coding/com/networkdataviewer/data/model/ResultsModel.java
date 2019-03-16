@@ -8,7 +8,7 @@ public class ResultsModel {
 
     private String resourceId;
 
-    private ArrayList<ResultsModel> resultsModelList;
+    private ArrayList<RecordsModel> recordsModelList;
 
     private LinksModel linksModel;
 
@@ -24,12 +24,12 @@ public class ResultsModel {
         this.resourceId = resourceId;
     }
 
-    public ArrayList<ResultsModel> getResultsModelList() {
-        return resultsModelList;
+    public ArrayList<RecordsModel> getRecordsModelList() {
+        return recordsModelList;
     }
 
-    public void setResultsModelList(ArrayList<ResultsModel> resultsModelList) {
-        this.resultsModelList = resultsModelList;
+    public void setRecordsModelList(ArrayList<RecordsModel> recordsModelList) {
+        this.recordsModelList = recordsModelList;
     }
 
     public LinksModel getLinksModel() {
@@ -60,7 +60,7 @@ public class ResultsModel {
     public String toString() {
         return "ResultsModel{" +
                 "resourceId='" + resourceId + '\'' +
-                ", resultsModelList=" + resultsModelList +
+                ", recordsModelList=" + recordsModelList +
                 ", linksModel=" + linksModel +
                 ", limit=" + limit +
                 ", total=" + total +
@@ -75,12 +75,12 @@ public class ResultsModel {
         return getLimit() == that.getLimit() &&
                 getTotal() == that.getTotal() &&
                 Objects.equals(getResourceId(), that.getResourceId()) &&
-                Objects.equals(getResultsModelList(), that.getResultsModelList()) &&
+                Objects.equals(getRecordsModelList(), that.getRecordsModelList()) &&
                 Objects.equals(getLinksModel(), that.getLinksModel());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getResourceId(), getResultsModelList(), getLinksModel(), getLimit(), getTotal());
+        return Objects.hash(getResourceId(), getRecordsModelList(), getLinksModel(), getLimit(), getTotal());
     }
 }

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import java.util.ArrayList;
 
 import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
+import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
 
 public interface HomeMVP {
@@ -13,17 +14,25 @@ public interface HomeMVP {
 
     interface View extends BaseMVP.View {
 
-        void onNotifyAdapter(@Nullable ArrayList<NetworkDataModel> networkDataModels, int page);
+        void populateData(ArrayList<RecordsModel> networkDataModelList);
 
-        void  onLoadMore();
+        void onNotifyAdapter(@Nullable ArrayList<RecordsModel> networkDataModels);
+
+        void notifyItemInserted(int position);
+
+        void notifyItemRemoved(int position);
 
         void onNavigateToDetails(@NonNull ArrayList<NetworkDataModel> models);
+
+        void isLoadingFlag(boolean isLoading);
 
     }
 
     interface Presenter extends BaseMVP.Presenter {
 
         void onWorkOffline(boolean workOffline);
+
+        void  onLoadMore();
 
     }
 }

@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.evernote.android.state.State;
-import com.evernote.android.state.StateSaver;
-
-import androidx.annotation.StringRes;
 import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
@@ -19,7 +19,6 @@ import assignment.coding.com.networkdataviewer.ui.widgets.dialog.ProgressDialogF
 
 public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresenter<V>> extends AppCompatActivity implements BaseMVP.View {
 
-    @State
     Bundle presenterStateBundle = new Bundle();
 
     private boolean isProgressShowing;
@@ -35,7 +34,6 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
         super.onCreate(savedInstanceState);
         setContentView(activityLayout());
         if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
-            StateSaver.restoreInstanceState(this, savedInstanceState);
             getPresenter().onRestoreInstanceState(savedInstanceState);
         }
     }
@@ -43,7 +41,6 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        StateSaver.saveInstanceState(this, outState);
         getPresenter().onSaveInstanceState(presenterStateBundle);
     }
 
@@ -76,11 +73,18 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
 
     @Override
     public void showProgress(@StringRes int resId) {
+        showProgress(R.string.in_progress,false);
     }
 
-    @Override
-    public void showBlockingProgress(int resId) {
-        showProgress(resId);
+
+
+    /**
+     * Methods adds {@link Fragment} to {@link BaseActivity}.
+     */
+    protected void addFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.add(R.id.container, fragment).commit();
     }
 
     private void showProgress(int resId, boolean cancelable) {

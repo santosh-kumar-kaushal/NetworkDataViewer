@@ -8,10 +8,6 @@ import android.os.IBinder;
 import assignment.coding.com.networkdataviewer.callbacks.ConnectionCallback;
 
 
-/**
- * Created by santosh on 1/26/2017.
- */
-
 public class Connection implements ServiceConnection {
 
     private BackendService mService;
