@@ -93,8 +93,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private void populateItemRows(ItemViewHolder viewHolder, int position) {
         RecordsModel recordsModel= recordsModelList.get(position);
-        String item = recordsModel.getVolumeOfMobileData()+"";
-        viewHolder.tvItem.setText(item);
+        String data = recordsModel.getVolumeOfMobileData()
+                +"";
+        String year=recordsModel.getQuarter().substring(0,4);
+        viewHolder.tvItem.setText(year+"------>"+data);
 
     }
 

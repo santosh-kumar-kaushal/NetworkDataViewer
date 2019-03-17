@@ -10,6 +10,25 @@ public class RecordsModel {
 
     private int id;
 
+    private double totalVolumeOfMobileData;
+
+    public RecordsModel() {
+    }
+
+    public RecordsModel(String quarter, double volumeOfMobileData, int id) {
+        this.quarter = quarter;
+        this.volumeOfMobileData = volumeOfMobileData;
+        this.id = id;
+    }
+
+    public double getTotalVolumeOfMobileData() {
+        return totalVolumeOfMobileData;
+    }
+
+    public void setTotalVolumeOfMobileData(double totalVolumeOfMobileData) {
+        this.totalVolumeOfMobileData = totalVolumeOfMobileData;
+    }
+
     public String getQuarter() {
         return quarter;
     }

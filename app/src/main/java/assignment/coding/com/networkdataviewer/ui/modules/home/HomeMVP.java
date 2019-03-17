@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
+import assignment.coding.com.networkdataviewer.network.Connection;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
 
 public interface HomeMVP {
@@ -26,11 +27,11 @@ public interface HomeMVP {
 
         void isLoadingFlag(boolean isLoading);
 
+        void serviceBoundStatus(boolean isBound, Connection connection);
+
     }
 
     interface Presenter extends BaseMVP.Presenter {
-
-        void onWorkOffline(boolean workOffline);
 
         void  onLoadMore();
 

@@ -4,22 +4,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.callbacks.ConnectionCallback;
 import assignment.coding.com.networkdataviewer.callbacks.DataNotificationCallback;
-import assignment.coding.com.networkdataviewer.data.model.LinksModel;
+import assignment.coding.com.networkdataviewer.data.converter.NetworkUIDataConverter;
+import assignment.coding.com.networkdataviewer.data.database.DataBaseHandler;
 import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
+import assignment.coding.com.networkdataviewer.data.model.NetworkUIData;
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
-import assignment.coding.com.networkdataviewer.data.model.ResultsModel;
 import assignment.coding.com.networkdataviewer.network.BackendService;
 import assignment.coding.com.networkdataviewer.network.Connection;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
+import assignment.coding.com.networkdataviewer.utils.NetworkUtil;
 
 public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMVP.Presenter, DataNotificationCallback, ConnectionCallback {
 
@@ -27,17 +27,19 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
 
     private Context context;
 
-    private boolean isBounded;
-
     private HomeMVP.View homeView;
-
-    private static final String TAG = HomePresenter.class.getName();
 
     private ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
 
+    private DataBaseHandler dataBaseHandler;
+
+    private boolean isBounded;
+
 
     HomePresenter(HomeMVP.View homeView, Context context) {
+        this.context = context;
         this.homeView = homeView;
+        dataBaseHandler = new DataBaseHandler(context);
         Intent intent = new Intent(context, BackendService.class);
         connection = new Connection();
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -51,81 +53,83 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
 
     @Override
     public void onReceive(String response) {
-        NetworkDataModel networkDataModel = parseJsonAsObject(response);
-        recordsModelArrayList = networkDataModel.getResultsModel().getRecordsModelList();
-        //for future use.
-        Log.i(TAG, networkDataModel.toString());
-    }
-
-
-    /**
-     * Method used to parse network information from json string from server.
-     *
-     * @param jsonString response from server.
-     */
-    //TODO - Move it to parser level.
-    private NetworkDataModel parseJsonAsObject(String jsonString) {
-        ArrayList<RecordsModel> recordsModelList = new ArrayList<>();
-        NetworkDataModel networkDataModel = new NetworkDataModel();
-        ResultsModel resultsModel = new ResultsModel();
-        LinksModel linksModel = new LinksModel();
-        try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            String help = jsonObject.getString("help");
-            networkDataModel.setHelp(help);
-            boolean success = jsonObject.getBoolean("success");
-            networkDataModel.setSuccessFlag(success);
-            //parse result
-            JSONObject resultObject = jsonObject.getJSONObject("result");
-            String resourceId = resultObject.getString("resource_id");
-            resultsModel.setResourceId(resourceId);
-            int limit = resultObject.getInt("limit");
-            resultsModel.setLimit(limit);
-            int total = resultObject.getInt("total");
-            resultsModel.setTotal(total);
-            JSONArray records = (JSONArray) resultObject.get("records");
-
-            for (int recordNo = 0; recordNo < records.length(); recordNo++) {
-                RecordsModel recordsModel = new RecordsModel();
-                JSONObject record = records.getJSONObject(recordNo);
-                String quarter = record.getString("quarter");
-                recordsModel.setQuarter(quarter);
-                double volumeOfMobileData = record.getDouble("volume_of_mobile_data");
-                recordsModel.setVolumeOfMobileData(volumeOfMobileData);
-                int id = record.getInt("_id");
-                recordsModel.setId(id);
-                recordsModelList.add(recordsModel);
-            }
-            resultsModel.setRecordsModelList(recordsModelList);
-            JSONObject linksObject = resultObject.getJSONObject("_links");
-            String start = linksObject.getString("start");
-            linksModel.setStart(start);
-            String next = linksObject.getString("next");
-            linksModel.setNext(next);
-            resultsModel.setLinksModel(linksModel);
-            networkDataModel.setResultsModel(resultsModel);
-        } catch (JSONException ignored) {
-            Log.e(TAG, "Exception in parsing data");
+        NetworkDataModel networkDataModel = NetworkUIDataConverter.parseJsonAsObject(response);
+        //Adding records model to database.
+        for (RecordsModel recordsModel : networkDataModel.getResultsModel().getRecordsModelList()) {
+            dataBaseHandler.addRecordsModel(recordsModel);
         }
-        ArrayList<RecordsModel> recordsModels = filterYearDataForRecords(recordsModelList);
-        homeView.populateData(recordsModels);
-        return networkDataModel;
+        ArrayList<RecordsModel> recordsModelArrayList = filterYearDataForRecords(networkDataModel.getResultsModel().getRecordsModelList(), 2000, 8, 18);
+        ArrayList<NetworkUIData> networkUIDataArrayList = getDataForDisplay(recordsModelArrayList);
+        Log.i("data", networkUIDataArrayList.toString());
+        homeView.populateData(recordsModelArrayList);
     }
 
-    private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels) {
-        int count = 8;
-        ArrayList<RecordsModel> filteredRecordsList=new ArrayList<>();
-        for (RecordsModel recordsModel : recordsModels) {
-            int year = 2000 + count;
-            if (recordsModel.getQuarter().contains(year + "")) {
-                filteredRecordsList.add(recordsModel);
+
+    private ArrayList<NetworkUIData> getDataForDisplay(ArrayList<RecordsModel> recordsModelList) {
+        ArrayList<NetworkUIData> networkUIDataList = new ArrayList<>();
+        int count = 0;
+        double totalDataVolume = 0;
+        NetworkUIData networkUIData;
+        for (RecordsModel recordsModel : recordsModelList) {
+            networkUIData = new NetworkUIData();
+            if (count < 4) {
+                totalDataVolume += recordsModel.getVolumeOfMobileData();
                 count++;
-                if (count>18) {
+                networkUIData.setTotalDataVolume(totalDataVolume);
+            } else {
+                count = 0;
+            }
+            networkUIDataList.add(networkUIData);
+        }
+        return networkUIDataList;
+    }
+
+
+//    private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
+////        int quarter = 1;
+////        double totalData = 0;
+////        double previous = 0;
+////        double next = 0;
+////        ArrayList<RecordsModel> filteredRecordsList = new ArrayList<>();
+////        for (int i = 0; i < recordsModels.size(); i++) {
+////            int year = yearSession + startYear;
+////            if (recordsModels.get(i).getQuarter().contains(year + "-Q" + quarter)) {
+////                totalData += recordsModels.get(i).getVolumeOfMobileData();
+////                quarter++;
+////                //One year has four quarters.
+////                if (quarter > 4) {
+////                    recordsModels.get(i).setTotalVolumeOfMobileData(totalData);
+////                    filteredRecordsList.add(recordsModels.get(i));
+////                    startYear++;
+////                    quarter = 1;
+////                    totalData = 0;
+////                }
+////                if (startYear > endYear) {
+////                    break;
+////                }
+////            }
+////        }
+////        return filteredRecordsList;
+////    }
+
+
+    private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
+        int quarter = 1;
+        ArrayList<RecordsModel> filteredRecordsList = new ArrayList<>();
+        for (RecordsModel recordsModel : recordsModels) {
+            int year = yearSession + startYear;
+            if (recordsModel.getQuarter().contains(year + "-Q" + quarter)) {
+                filteredRecordsList.add(recordsModel);
+                quarter++;
+                //One year have four quarters.
+                if (quarter > 4) {
+                    startYear++;
+                    quarter = 1;
+                }
+                if (startYear > endYear) {
                     break;
                 }
-
             }
-
         }
         return filteredRecordsList;
     }
@@ -134,16 +138,29 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
     @Override
     public void onServiceBound(boolean isBounded) {
         this.isBounded = isBounded;
-        if (isBounded) {
-            connection.getmService().setDataNotificationCallback(this);
-            connection.getmService().new FetchJsonData().execute("https://data.gov.sg/api/action/datastore_search?resource_id=a807b7ab-6cad-4aa6-87d0-e283a7353a0f&limit=56");
+        if (!NetworkUtil.isNetworkReachable(context)) {
+            onWorkOffline();
+        } else {
+            onWorkOnline();
         }
+        homeView.serviceBoundStatus(isBounded, connection);
     }
 
 
-    @Override
-    public void onWorkOffline(boolean workOffline) {
+    private void onWorkOffline() {
+        ArrayList<RecordsModel> recordsModelArrayList = dataBaseHandler.getAllRecords();
+        homeView.populateData(recordsModelArrayList);
+        Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_LONG).show();
+    }
 
+
+    private void onWorkOnline() {
+        if (isBounded) {
+            connection.getmService().setDataNotificationCallback(this);
+            connection.getmService().new FetchJsonData().execute("https://data.gov.sg/api/action/datastore_search?resource_id=a807b7ab-6cad-4aa6-87d0-e283a7353a0f&limit=56");
+        } else {
+            Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package assignment.coding.com.networkdataviewer.ui.modules.home;
 
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,9 +13,9 @@ import java.util.ArrayList;
 import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
+import assignment.coding.com.networkdataviewer.network.Connection;
 import assignment.coding.com.networkdataviewer.ui.adapter.RecyclerViewAdapter;
 import assignment.coding.com.networkdataviewer.ui.base.BaseFragment;
-import assignment.coding.com.networkdataviewer.utils.NetworkUtil;
 
 
 public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> implements HomeMVP.View {
@@ -27,6 +28,8 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
     ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
 
     boolean isLoading = false;
+    private boolean isBounded;
+    private ServiceConnection connection;
 
     @Override
     protected int fragmentLayout() {
@@ -48,11 +51,6 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (getActivity() != null) {
-            if (NetworkUtil.isNetworkReachable(getActivity())) {
-                getPresenter().onWorkOffline(true);
-            }
-        }
         recyclerView = view.findViewById(R.id.recyclerView);
         initAdapter();
         initScrollListener();
@@ -92,18 +90,16 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
     }
 
 
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // if (isBounded)
-        //   Objects.requireNonNull(getActivity()).unbindService(connection);
+        if (getActivity() != null && isBounded)
+            getActivity().unbindService(connection);
     }
 
     @Override
     public void populateData(ArrayList<RecordsModel> recordsModelArrayList) {
-       recyclerViewAdapter.setRecordsModelList(recordsModelArrayList);
+        recyclerViewAdapter.setRecordsModelList(recordsModelArrayList);
     }
 
     @Override
@@ -129,7 +125,13 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
 
     @Override
     public void isLoadingFlag(boolean isLoading) {
-        this.isLoading=isLoading;
+        this.isLoading = isLoading;
+    }
+
+    @Override
+    public void serviceBoundStatus(boolean isBound, Connection connection) {
+        this.isBounded = isBound;
+        this.connection = connection;
     }
 }
 
