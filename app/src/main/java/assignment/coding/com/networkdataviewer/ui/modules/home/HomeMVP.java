@@ -17,15 +17,9 @@ public interface HomeMVP {
 
         void populateData(ArrayList<RecordsModel> networkDataModelList);
 
-        void onNotifyAdapter(@Nullable ArrayList<RecordsModel> networkDataModels);
-
-        void notifyItemInserted(int position);
-
-        void notifyItemRemoved(int position);
+        void onNotifyAdapter();
 
         void onNavigateToDetails(@NonNull ArrayList<NetworkDataModel> models);
-
-        void isLoadingFlag(boolean isLoading);
 
         void serviceBoundStatus(boolean isBound, Connection connection);
 
@@ -33,7 +27,10 @@ public interface HomeMVP {
 
     interface Presenter extends BaseMVP.Presenter {
 
-        void  onLoadMore();
+        void onWorkOffline();
+
+        void onWorkOnline();
+
 
     }
 }

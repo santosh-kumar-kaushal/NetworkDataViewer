@@ -4,7 +4,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -16,18 +15,18 @@ import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
 import assignment.coding.com.networkdataviewer.network.Connection;
 import assignment.coding.com.networkdataviewer.ui.adapter.RecyclerViewAdapter;
 import assignment.coding.com.networkdataviewer.ui.base.BaseFragment;
+import assignment.coding.com.networkdataviewer.utils.NetworkUtil;
 
 
 public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> implements HomeMVP.View {
 
 
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
 
-    RecyclerViewAdapter recyclerViewAdapter;
+    private RecyclerViewAdapter recyclerViewAdapter;
 
-    ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
+    private ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
 
-    boolean isLoading = false;
     private boolean isBounded;
     private ServiceConnection connection;
 
@@ -44,8 +43,15 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
 
     @Override
     protected void onFragmentCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        //No operation here for future use.
+        if (getActivity() != null) {
+            if (!NetworkUtil.isNetworkReachable(getActivity())) {
+                getPresenter().onWorkOffline();
+            } else {
+                getPresenter().onWorkOnline();
+            }
+        }
     }
+
 
 
     @Override
@@ -53,7 +59,6 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.recyclerView);
         initAdapter();
-        initScrollListener();
 
     }
 
@@ -61,32 +66,6 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
     private void initAdapter() {
         recyclerViewAdapter = new RecyclerViewAdapter(recordsModelArrayList);
         recyclerView.setAdapter(recyclerViewAdapter);
-    }
-
-    private void initScrollListener() {
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-
-                if (!isLoading) {
-                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == recordsModelArrayList.size() - 1) {
-                        //bottom of list!
-                        getPresenter().onLoadMore();
-                        isLoading = true;
-                    }
-                }
-            }
-        });
-
-
     }
 
 
@@ -99,33 +78,21 @@ public class HomeFragment extends BaseFragment<HomeMVP.View, HomePresenter> impl
 
     @Override
     public void populateData(ArrayList<RecordsModel> recordsModelArrayList) {
-        recyclerViewAdapter.setRecordsModelList(recordsModelArrayList);
+        if(recordsModelArrayList!=null && recyclerViewAdapter!=null) {
+            this.recordsModelArrayList = recordsModelArrayList;
+            recyclerViewAdapter.setRecordsModelList(recordsModelArrayList);
+        }
     }
 
     @Override
-    public void onNotifyAdapter(@Nullable ArrayList<RecordsModel> networkDataModels) {
+    public void onNotifyAdapter() {
         recyclerViewAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void notifyItemInserted(int position) {
-        recyclerViewAdapter.notifyItemInserted(position);
-    }
-
-    @Override
-    public void notifyItemRemoved(int position) {
-        recyclerViewAdapter.notifyItemRemoved(position);
     }
 
 
     @Override
     public void onNavigateToDetails(@NonNull ArrayList<NetworkDataModel> models) {
 
-    }
-
-    @Override
-    public void isLoadingFlag(boolean isLoading) {
-        this.isLoading = isLoading;
     }
 
     @Override

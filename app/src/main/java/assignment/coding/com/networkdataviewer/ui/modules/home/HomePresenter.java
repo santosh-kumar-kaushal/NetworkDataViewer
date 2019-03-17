@@ -2,11 +2,12 @@ package assignment.coding.com.networkdataviewer.ui.modules.home;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.callbacks.ConnectionCallback;
@@ -14,7 +15,6 @@ import assignment.coding.com.networkdataviewer.callbacks.DataNotificationCallbac
 import assignment.coding.com.networkdataviewer.data.converter.NetworkUIDataConverter;
 import assignment.coding.com.networkdataviewer.data.database.DataBaseHandler;
 import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
-import assignment.coding.com.networkdataviewer.data.model.NetworkUIData;
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
 import assignment.coding.com.networkdataviewer.network.BackendService;
 import assignment.coding.com.networkdataviewer.network.Connection;
@@ -28,8 +28,6 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
     private Context context;
 
     private HomeMVP.View homeView;
-
-    private ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
 
     private DataBaseHandler dataBaseHandler;
 
@@ -53,78 +51,48 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
 
     @Override
     public void onReceive(String response) {
+        ArrayList<RecordsModel> recordsModelArrayList;
         NetworkDataModel networkDataModel = NetworkUIDataConverter.parseJsonAsObject(response);
+        recordsModelArrayList = filterYearDataForRecords(networkDataModel.getResultsModel().getRecordsModelList(), 2000, 8, 18);
         //Adding records model to database.
-        for (RecordsModel recordsModel : networkDataModel.getResultsModel().getRecordsModelList()) {
+        for (RecordsModel recordsModel : recordsModelArrayList) {
             dataBaseHandler.addRecordsModel(recordsModel);
         }
-        ArrayList<RecordsModel> recordsModelArrayList = filterYearDataForRecords(networkDataModel.getResultsModel().getRecordsModelList(), 2000, 8, 18);
-        ArrayList<NetworkUIData> networkUIDataArrayList = getDataForDisplay(recordsModelArrayList);
-        Log.i("data", networkUIDataArrayList.toString());
         homeView.populateData(recordsModelArrayList);
+        homeView.onNotifyAdapter();
     }
-
-
-    private ArrayList<NetworkUIData> getDataForDisplay(ArrayList<RecordsModel> recordsModelList) {
-        ArrayList<NetworkUIData> networkUIDataList = new ArrayList<>();
-        int count = 0;
-        double totalDataVolume = 0;
-        NetworkUIData networkUIData;
-        for (RecordsModel recordsModel : recordsModelList) {
-            networkUIData = new NetworkUIData();
-            if (count < 4) {
-                totalDataVolume += recordsModel.getVolumeOfMobileData();
-                count++;
-                networkUIData.setTotalDataVolume(totalDataVolume);
-            } else {
-                count = 0;
-            }
-            networkUIDataList.add(networkUIData);
-        }
-        return networkUIDataList;
-    }
-
-
-//    private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
-////        int quarter = 1;
-////        double totalData = 0;
-////        double previous = 0;
-////        double next = 0;
-////        ArrayList<RecordsModel> filteredRecordsList = new ArrayList<>();
-////        for (int i = 0; i < recordsModels.size(); i++) {
-////            int year = yearSession + startYear;
-////            if (recordsModels.get(i).getQuarter().contains(year + "-Q" + quarter)) {
-////                totalData += recordsModels.get(i).getVolumeOfMobileData();
-////                quarter++;
-////                //One year has four quarters.
-////                if (quarter > 4) {
-////                    recordsModels.get(i).setTotalVolumeOfMobileData(totalData);
-////                    filteredRecordsList.add(recordsModels.get(i));
-////                    startYear++;
-////                    quarter = 1;
-////                    totalData = 0;
-////                }
-////                if (startYear > endYear) {
-////                    break;
-////                }
-////            }
-////        }
-////        return filteredRecordsList;
-////    }
 
 
     private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
         int quarter = 1;
+        double totalData = 0;
+        double previous = 0;
+        double next = 0;
+        String previousYear;
+        String nextYear;
         ArrayList<RecordsModel> filteredRecordsList = new ArrayList<>();
-        for (RecordsModel recordsModel : recordsModels) {
+        for (int i = 0; i < recordsModels.size() - 1; i++) {
             int year = yearSession + startYear;
-            if (recordsModel.getQuarter().contains(year + "-Q" + quarter)) {
-                filteredRecordsList.add(recordsModel);
+            if (recordsModels.get(i).getQuarter().contains(year + "-Q" + quarter)) {
+                totalData += recordsModels.get(i).getVolumeOfMobileData();
                 quarter++;
+                previousYear = recordsModels.get(i).getQuarter().substring(0, 4);
+                nextYear = recordsModels.get(i + 1).getQuarter().substring(0, 4);
+                if (previousYear.equals(nextYear)) {
+                    previous = recordsModels.get(i).getVolumeOfMobileData();
+                    next = recordsModels.get(i + 1).getVolumeOfMobileData();
+                }
                 //One year have four quarters.
                 if (quarter > 4) {
+                    if (previous > next) {
+                        recordsModels.get(i).setIsDecreaseInVolume("true");
+                    }
+                    recordsModels.get(i).setTotalVolumeOfMobileData(totalData);
+                    recordsModels.get(i).setYear(recordsModels.get(i).getQuarter().substring(0, 4));
+                    filteredRecordsList.add(recordsModels.get(i));
                     startYear++;
                     quarter = 1;
+                    totalData = 0;
                 }
                 if (startYear > endYear) {
                     break;
@@ -146,47 +114,18 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
         homeView.serviceBoundStatus(isBounded, connection);
     }
 
-
-    private void onWorkOffline() {
-        ArrayList<RecordsModel> recordsModelArrayList = dataBaseHandler.getAllRecords();
-        homeView.populateData(recordsModelArrayList);
+    @Override
+    public void onWorkOffline() {
+        homeView.populateData(dataBaseHandler.getAllRecords());
         Toast.makeText(context, context.getString(R.string.network_error), Toast.LENGTH_LONG).show();
     }
 
-
-    private void onWorkOnline() {
+    @Override
+    public void onWorkOnline() {
         if (isBounded) {
             connection.getmService().setDataNotificationCallback(this);
             connection.getmService().new FetchJsonData().execute("https://data.gov.sg/api/action/datastore_search?resource_id=a807b7ab-6cad-4aa6-87d0-e283a7353a0f&limit=56");
-        } else {
-            Toast.makeText(context, context.getString(R.string.error), Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void onLoadMore() {
-        recordsModelArrayList.add(null);
-        homeView.notifyItemInserted(recordsModelArrayList.size() - 1);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                recordsModelArrayList.remove(recordsModelArrayList.size() - 1);
-                int scrollPosition = recordsModelArrayList.size();
-                homeView.notifyItemRemoved(scrollPosition);
-                int currentSize = scrollPosition;
-                int nextLimit = currentSize + 10;
-
-                while (currentSize - 1 < nextLimit) {
-                    //networkDataModelList.add("Item " + currentSize);
-                    currentSize++;
-                }
-                //TODO check this.
-                homeView.onNotifyAdapter(recordsModelArrayList);
-                homeView.isLoadingFlag(false);
-            }
-        }, 2000);
-
     }
 
 }

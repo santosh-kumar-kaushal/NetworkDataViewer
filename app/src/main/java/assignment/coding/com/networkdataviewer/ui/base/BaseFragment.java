@@ -31,6 +31,7 @@ public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresent
         super.onAttach(context);
         if (context instanceof BaseMVP.View) {
             callback = (BaseMVP.View) context;
+            getPresenter();
         }
     }
 

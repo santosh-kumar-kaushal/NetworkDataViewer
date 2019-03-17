@@ -6,4 +6,6 @@
     <string name="request_error">Error requesting server, please try again later</string>
     <string name="in_progress">Loading, please wait…</string>
     <string name="service_error">Service error</string>
+    <string name="annual_data">Annual data --></string>
+    <string name="decrease_in_data">Decrease in volume data</string>
 </resources>

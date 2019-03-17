@@ -12,13 +12,36 @@ public class RecordsModel {
 
     private double totalVolumeOfMobileData;
 
+    private String year;
+
+    private String isDecreaseInVolume="";
+
+    public String getIsDecreaseInVolume() {
+        return isDecreaseInVolume;
+    }
+
+    public void setIsDecreaseInVolume(String isDecreaseInVolume) {
+        this.isDecreaseInVolume = isDecreaseInVolume;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
     public RecordsModel() {
     }
 
-    public RecordsModel(String quarter, double volumeOfMobileData, int id) {
+    public RecordsModel(String quarter, double volumeOfMobileData, int id, double totalVolumeOfMobileData, String year, String isDecreaseInVolume) {
         this.quarter = quarter;
         this.volumeOfMobileData = volumeOfMobileData;
         this.id = id;
+        this.totalVolumeOfMobileData = totalVolumeOfMobileData;
+        this.year = year;
+        this.isDecreaseInVolume = isDecreaseInVolume;
     }
 
     public double getTotalVolumeOfMobileData() {

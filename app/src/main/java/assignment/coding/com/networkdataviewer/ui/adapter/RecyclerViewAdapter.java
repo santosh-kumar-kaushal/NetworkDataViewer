@@ -1,12 +1,15 @@
 package assignment.coding.com.networkdataviewer.ui.adapter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private final int VIEW_TYPE_ITEM = 0;
 
     private List<RecordsModel> recordsModelList;
+
+    private Context context;
 
     public void setRecordsModelList(List<RecordsModel> recordsModelList) {
         this.recordsModelList = recordsModelList;
@@ -32,6 +37,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
+            context = parent.getContext();
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_row, parent, false);
             return new ItemViewHolder(view);
         } else {
@@ -45,8 +51,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         if (viewHolder instanceof ItemViewHolder) {
             populateItemRows((ItemViewHolder) viewHolder, position);
-        } else if (viewHolder instanceof LoadingViewHolder) {
-            showLoadingView((LoadingViewHolder) viewHolder, position);
         }
 
     }
@@ -69,34 +73,47 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private class ItemViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvItem;
+        ImageView imageView;
 
         ItemViewHolder(@NonNull View itemView) {
             super(itemView);
 
             tvItem = itemView.findViewById(R.id.tvItem);
+            imageView = itemView.findViewById(R.id.image_view);
         }
     }
 
     private class LoadingViewHolder extends RecyclerView.ViewHolder {
 
         ProgressBar progressBar;
+
         LoadingViewHolder(@NonNull View itemView) {
             super(itemView);
             progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 
-    private void showLoadingView(LoadingViewHolder viewHolder, int position) {
-        //ProgressBar would be displayed
-
-    }
 
     private void populateItemRows(ItemViewHolder viewHolder, int position) {
-        RecordsModel recordsModel= recordsModelList.get(position);
-        String data = recordsModel.getVolumeOfMobileData()
-                +"";
-        String year=recordsModel.getQuarter().substring(0,4);
-        viewHolder.tvItem.setText(year+"------>"+data);
+        RecordsModel recordsModel = recordsModelList.get(position);
+        String data = recordsModel.getTotalVolumeOfMobileData()
+                + "";
+        String isDec = recordsModel.getIsDecreaseInVolume();
+        if (isDec!=null && isDec.equals("true")) {
+            viewHolder.imageView.setEnabled(true);
+            viewHolder.imageView.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.imageView.setEnabled(false);
+            viewHolder.imageView.setVisibility(View.INVISIBLE);
+
+        }
+        viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, context.getString(R.string.decrease_in_data), Toast.LENGTH_LONG).show();
+            }
+        });
+        viewHolder.tvItem.setText(data);
 
     }
 

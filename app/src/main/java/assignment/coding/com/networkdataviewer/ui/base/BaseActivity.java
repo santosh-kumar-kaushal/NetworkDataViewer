@@ -33,6 +33,7 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(activityLayout());
+        getPresenter();
         if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
             getPresenter().onRestoreInstanceState(savedInstanceState);
         }
@@ -41,7 +42,7 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        getPresenter().onSaveInstanceState(presenterStateBundle);
+       // getPresenter().onSaveInstanceState(presenterStateBundle);
     }
 
 
@@ -84,7 +85,7 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
     protected void addFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.add(R.id.container, fragment).commit();
+        ft.replace(R.id.container, fragment).commit();
     }
 
     private void showProgress(int resId, boolean cancelable) {
