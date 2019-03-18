@@ -16,25 +16,45 @@ import android.view.ViewGroup;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
 
-
+/**
+ * Base for all the dialog fragments.
+ *
+ * @param <V> View.
+ * @param <P> Presenter.
+ */
 public abstract class BaseDialogFragment<V extends BaseMVP.View, P extends BasePresenter<V>> extends DialogFragment implements BaseMVP.View {
     protected BaseMVP.View callback;
-
+    /**
+     * Flag which maintains the animation status for dialog.
+     */
     protected boolean suppressAnimation = false;
 
+    /**
+     * Layout which needs to be displayed.
+     *
+     * @return layout id.
+     */
     @LayoutRes
     protected abstract int fragmentLayout();
 
+    /**
+     * Callback when fragment is created.
+     *
+     * @param view               view.
+     * @param savedInstanceState bundle.
+     */
     protected abstract void onFragmentCreated(@NonNull View view, @Nullable Bundle savedInstanceState);
 
-    @Override public void onAttach(Context context) {
+    @Override
+    public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof BaseMVP.View) {
             callback = (BaseMVP.View) context;
         }
     }
 
-    @Override public void onDetach() {
+    @Override
+    public void onDetach() {
         super.onDetach();
         callback = null;
     }
@@ -45,7 +65,8 @@ public abstract class BaseDialogFragment<V extends BaseMVP.View, P extends BaseP
         getPresenter().onSaveInstanceState(outState);
     }
 
-    @Override public void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null && !savedInstanceState.isEmpty()) {
             getPresenter().onRestoreInstanceState(savedInstanceState);
@@ -60,7 +81,9 @@ public abstract class BaseDialogFragment<V extends BaseMVP.View, P extends BaseP
         }
     }
 
-    @SuppressLint("RestrictedApi") @Nullable @Override
+    @SuppressLint("RestrictedApi")
+    @Nullable
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (fragmentLayout() != 0) {
             View view = inflater.inflate(fragmentLayout(), container, false);
@@ -70,40 +93,53 @@ public abstract class BaseDialogFragment<V extends BaseMVP.View, P extends BaseP
     }
 
     @NonNull
-    @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         final Dialog dialog = super.onCreateDialog(savedInstanceState);
         return dialog;
     }
 
-    @Override public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         onFragmentCreated(view, savedInstanceState);
     }
 
-    @Override public void showProgress(@StringRes int resId) {
+    @Override
+    public void showProgress(@StringRes int resId) {
         callback.showProgress(resId);
     }
 
-    @Override public void hideProgress() {
+    @Override
+    public void hideProgress() {
         callback.hideProgress();
     }
 
-    @Override public void showMessage(@StringRes int titleRes, @StringRes int msgRes) {
+    @Override
+    public void showMessage(@StringRes int titleRes, @StringRes int msgRes) {
         callback.showMessage(titleRes, msgRes);
     }
 
-    @Override public void showMessage(@NonNull String titleRes, @NonNull String msgRes) {
+    @Override
+    public void showMessage(@NonNull String titleRes, @NonNull String msgRes) {
         callback.showMessage(titleRes, msgRes);
     }
 
-    @Override public void showErrorMessage(@NonNull String msgRes) {
+    @Override
+    public void showErrorMessage(@NonNull String msgRes) {
         callback.showErrorMessage(msgRes);
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
     }
 
+    /**
+     * Method returns required presenter.
+     *
+     * @return BasePresenter.
+     */
     public BasePresenter getPresenter() {
         return new BasePresenter();
     }

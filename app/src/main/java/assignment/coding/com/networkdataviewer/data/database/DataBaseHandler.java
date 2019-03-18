@@ -10,26 +10,52 @@ import java.util.ArrayList;
 
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
 
+/**
+ * This class is responsible for storing network data to local storage for caching.
+ */
 public class DataBaseHandler extends SQLiteOpenHelper {
-
+    /**
+     * Database version.
+     */
     private static final int DATABASE_VERSION = 1;
-
+    /**
+     * Database name.
+     */
     private static final String DATABASE_NAME = "networkInfo";
-
+    /**
+     * Table name in sqlite.
+     */
     private static final String TABLE_NETWORK = "network";
-
+    /**
+     * Quarter data.
+     */
     private static final String KEY_QUARTER = "quarter";
-
+    /**
+     * Quarterly absorbed data.
+     */
     private static final String KEY_VOLUME_OF_DATA = "volumeofdata";
-
+    /**
+     * ID for quarter.
+     */
     private static final String KEY_ID = "id";
-
+    /**
+     * Total mobile data consumed in a year.
+     */
     private static final String KEY_TOTAL_VOLUME = "totalvolume";
-
+    /**
+     * Flag which shows decrement in mobile data in a year.
+     */
     private static final String KEY_DECREMENT_FLAG = "decrementflag";
-
+    /**
+     * Year.
+     */
     private static final String KEY_YEAR = "year";
 
+    /**
+     * Constructor.
+     *
+     * @param context context.
+     */
     public DataBaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -54,6 +80,11 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    /**
+     * Add {@link RecordsModel} to database.
+     *
+     * @param recordsModel model used for UI.
+     */
     public void addRecordsModel(RecordsModel recordsModel) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -70,21 +101,11 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         db.close(); // Closing database connection
     }
 
-    public RecordsModel getRecordsModel(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_NETWORK, new String[]{KEY_QUARTER,
-                        KEY_VOLUME_OF_DATA, KEY_ID,KEY_QUARTER, KEY_TOTAL_VOLUME, KEY_DECREMENT_FLAG, KEY_YEAR}, KEY_QUARTER + "=?",
-                new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-
-            return new RecordsModel(cursor.getString(0),
-                    cursor.getDouble(1), cursor.getInt(2), cursor.getDouble(3), cursor.getString(4), cursor.getString(5));
-        }
-        return null;
-    }
-
+    /**
+     * Get all the records from database.
+     *
+     * @return list of records.
+     */
     public ArrayList<RecordsModel> getAllRecords() {
         ArrayList<RecordsModel> recordsModelArrayList = new ArrayList<>();
         // Select All Query
@@ -110,6 +131,11 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         return recordsModelArrayList;
     }
 
+    /**
+     * Get count of total records.
+     *
+     * @return total count of records.
+     */
     public int getRecordsCount() {
         String countQuery = "SELECT  * FROM " + TABLE_NETWORK;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -119,7 +145,12 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         return cursor.getCount();
     }
 
-
+    /**
+     * Update record.
+     *
+     * @param recordsModel {@link RecordsModel}.
+     * @return updated data in db.
+     */
     public int updateRecord(RecordsModel recordsModel) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -136,6 +167,11 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 new String[]{String.valueOf(recordsModel.getId())});
     }
 
+    /**
+     * Delete record from database.
+     *
+     * @param recordsModel {@link RecordsModel}.
+     */
     public void deleteRecord(RecordsModel recordsModel) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NETWORK, KEY_QUARTER + " = ?",

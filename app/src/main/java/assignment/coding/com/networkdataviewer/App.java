@@ -3,6 +3,9 @@ package assignment.coding.com.networkdataviewer;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
+/**
+ * Application class.
+ */
 public class App extends Application {
 
     private static App instance;
@@ -10,7 +13,6 @@ public class App extends Application {
     @Override public void onCreate() {
         super.onCreate();
         instance = this;
-        init();
     }
 
     @NonNull
@@ -18,8 +20,5 @@ public class App extends Application {
         return instance;
     }
 
-    private void init() {
-
-    }
 
 }

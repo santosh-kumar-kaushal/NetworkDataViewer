@@ -7,17 +7,33 @@ import android.os.IBinder;
 
 import assignment.coding.com.networkdataviewer.callbacks.ConnectionCallback;
 
-
+/**
+ * Connection class which connects service to caller class.
+ */
 public class Connection implements ServiceConnection {
-
+    /**
+     * Instance of {@link BackendService}.
+     */
     private BackendService mService;
-
+    /**
+     * Callback when connection is bound/un-bound.
+     */
     private ConnectionCallback connectionCallback;
 
+    /**
+     * Setter for connection callback.
+     *
+     * @param connectionCallback {@link ConnectionCallback}.
+     */
     public void setConnectionCallback(ConnectionCallback connectionCallback) {
         this.connectionCallback = connectionCallback;
     }
 
+    /**
+     * Getter for service.
+     *
+     * @return service.
+     */
     public BackendService getmService() {
         return mService;
     }

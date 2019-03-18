@@ -18,13 +18,23 @@ import java.net.URL;
 import assignment.coding.com.networkdataviewer.callbacks.DataNotificationCallback;
 import assignment.coding.com.networkdataviewer.exceptions.DataFetchingException;
 
+/**
+ * This is a {@link Service} which will be running to fetch the data.
+ */
 public class BackendService extends Service {
 
     // Binder given to clients
     private final IBinder mBinder = new ServiceBinder();
-
+    /**
+     * Callback when data is received from api.
+     */
     private DataNotificationCallback dataNotificationCallback;
 
+    /**
+     * Setter for {@link DataNotificationCallback}.
+     *
+     * @param dataNotificationCallback {@link DataNotificationCallback}.
+     */
     public void setDataNotificationCallback(DataNotificationCallback dataNotificationCallback) {
         this.dataNotificationCallback = dataNotificationCallback;
     }
@@ -110,7 +120,9 @@ public class BackendService extends Service {
         return result;
     }
 
-
+    /**
+     * Class makes request to server and fetches data.
+     */
     public class FetchJsonData extends AsyncTask<String, Integer, String> {
 
         private String response;
@@ -139,7 +151,7 @@ public class BackendService extends Service {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(dataNotificationCallback!=null)
+            if (dataNotificationCallback != null)
                 dataNotificationCallback.onReceive(result);
         }
     }

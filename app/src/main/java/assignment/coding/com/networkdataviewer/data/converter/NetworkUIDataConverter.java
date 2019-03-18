@@ -13,10 +13,14 @@ import assignment.coding.com.networkdataviewer.data.model.NetworkDataModel;
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
 import assignment.coding.com.networkdataviewer.data.model.ResultsModel;
 
+/**
+ * Converts server data to models.
+ */
 public class NetworkUIDataConverter {
-
+    /**
+     * Logger.
+     */
     private static final String TAG = NetworkUIDataConverter.class.getName();
-
 
     /**
      * Method used to parse network information from json string from server.

@@ -15,25 +15,43 @@ import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.ui.base.BaseDialogFragment;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
 
+/**
+ * Progress dialog to display progess on screen.
+ */
 public class ProgressDialogFragment extends BaseDialogFragment {
-
+    /**
+     * Constructor.
+     */
     public ProgressDialogFragment() {
         suppressAnimation = true;
     }
 
+    /**
+     * Logger.
+     */
     public static final String TAG = ProgressDialogFragment.class.getSimpleName();
 
+    /**
+     * New instance of {@link ProgressDialogFragment}.
+     *
+     * @param resources    resource.
+     * @param msgId        message.
+     * @param isCancelable
+     * @return {@link ProgressDialogFragment}.
+     */
     @NonNull
     public static ProgressDialogFragment newInstance(@NonNull Resources resources, @StringRes int msgId, boolean isCancelable) {
         return newInstance(resources.getString(msgId), isCancelable);
     }
 
-    @NonNull public static ProgressDialogFragment newInstance(@NonNull String msg, boolean isCancelable) {
+    @NonNull
+    public static ProgressDialogFragment newInstance(@NonNull String msg, boolean isCancelable) {
         ProgressDialogFragment fragment = new ProgressDialogFragment();
         return fragment;
     }
 
-    @Override protected int fragmentLayout() {
+    @Override
+    protected int fragmentLayout() {
         return R.layout.progress_dialog_layout;
     }
 
@@ -43,7 +61,8 @@ public class ProgressDialogFragment extends BaseDialogFragment {
     }
 
     @NonNull
-    @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setCancelable(false);
         setCancelable(false);
@@ -56,7 +75,7 @@ public class ProgressDialogFragment extends BaseDialogFragment {
     }
 
     @NonNull
-    public BasePresenter providePresenter() {
+    public BasePresenter getPresenter() {
         return new BasePresenter();
     }
 }

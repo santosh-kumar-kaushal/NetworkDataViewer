@@ -2,24 +2,52 @@ package assignment.coding.com.networkdataviewer.data.model;
 
 import java.util.Objects;
 
+/**
+ * Links model stores links which is received from service.
+ */
 public class LinksModel {
 
+    /**
+     * start link.
+     */
     private String start;
-
+    /**
+     * next link.
+     */
     private String next;
 
+    /**
+     * Getter for start link.
+     *
+     * @return start link.
+     */
     public String getStart() {
         return start;
     }
 
+    /**
+     * Setter for start.
+     *
+     * @param start start.
+     */
     public void setStart(String start) {
         this.start = start;
     }
 
+    /**
+     * Getter for next.
+     *
+     * @return next.
+     */
     public String getNext() {
         return next;
     }
 
+    /**
+     * Setter for next.
+     *
+     * @param next next
+     */
     public void setNext(String next) {
         this.next = next;
     }

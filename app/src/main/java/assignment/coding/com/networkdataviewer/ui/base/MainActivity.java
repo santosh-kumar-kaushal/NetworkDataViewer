@@ -2,8 +2,12 @@ package assignment.coding.com.networkdataviewer.ui.base;
 
 import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
+import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.MainPresenter;
 import assignment.coding.com.networkdataviewer.ui.modules.home.HomeFragment;
 
+/**
+ * Launcher activity which is the container for fragments.
+ */
 public class MainActivity extends BaseActivity {
 
 
@@ -15,7 +19,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected BaseMVP.Presenter getPresenter() {
-        return null;
+        return new MainPresenter();
     }
 
     @Override

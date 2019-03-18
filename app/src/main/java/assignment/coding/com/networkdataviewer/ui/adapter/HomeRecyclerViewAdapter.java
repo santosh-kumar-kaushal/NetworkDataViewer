@@ -16,20 +16,39 @@ import java.util.List;
 import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.data.model.RecordsModel;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
+/**
+ * This class is responsible for showing data received from api to {@link RecyclerView}.
+ */
+public class HomeRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    /**
+     * This is the item type for view where data would be displayed.
+     */
     private final int VIEW_TYPE_ITEM = 0;
-
+    /**
+     * List of {@link RecordsModel}.
+     */
     private List<RecordsModel> recordsModelList;
-
+    /**
+     * Context.
+     */
     private Context context;
 
+    /**
+     * Setter for recordsModelList.
+     *
+     * @param recordsModelList recordsModelList.
+     */
     public void setRecordsModelList(List<RecordsModel> recordsModelList) {
         this.recordsModelList = recordsModelList;
         notifyDataSetChanged();
     }
 
-    public RecyclerViewAdapter(List<RecordsModel> itemList) {
+    /**
+     * Constructor.
+     *
+     * @param itemList {@link List<RecordsModel>}
+     */
+    public HomeRecyclerViewAdapter(List<RecordsModel> itemList) {
         recordsModelList = itemList;
     }
 
@@ -93,13 +112,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-
-    private void populateItemRows(ItemViewHolder viewHolder, int position) {
+    /**
+     * Populating rows.
+     *
+     * @param viewHolder view holder.
+     * @param position   position.
+     */
+    public void populateItemRows(ItemViewHolder viewHolder, int position) {
         RecordsModel recordsModel = recordsModelList.get(position);
         String data = recordsModel.getTotalVolumeOfMobileData()
                 + "";
         String isDec = recordsModel.getIsDecreaseInVolume();
-        if (isDec!=null && isDec.equals("true")) {
+        if (isDec != null && isDec.equals("true")) {
             viewHolder.imageView.setEnabled(true);
             viewHolder.imageView.setVisibility(View.VISIBLE);
         } else {

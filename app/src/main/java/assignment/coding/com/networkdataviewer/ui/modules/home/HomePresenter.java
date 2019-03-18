@@ -2,12 +2,9 @@ package assignment.coding.com.networkdataviewer.ui.modules.home;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.callbacks.ConnectionCallback;
@@ -21,19 +18,37 @@ import assignment.coding.com.networkdataviewer.network.Connection;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
 import assignment.coding.com.networkdataviewer.utils.NetworkUtil;
 
+/**
+ * This class is responsible for holding business logic for home screen to be displayed.
+ */
 public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMVP.Presenter, DataNotificationCallback, ConnectionCallback {
-
+    /**
+     * Connection instance for binding the service to UI.
+     */
     private Connection connection;
-
+    /**
+     * Context.
+     */
     private Context context;
-
+    /**
+     * Instance of {@link HomeMVP.View} for callback to UI.
+     */
     private HomeMVP.View homeView;
-
+    /**
+     * Instance of {@link DataBaseHandler} for data storage for caching.
+     */
     private DataBaseHandler dataBaseHandler;
-
+    /**
+     * Flag which is used to maintain service binding status.
+     */
     private boolean isBounded;
 
-
+    /**
+     * Constructor.
+     *
+     * @param homeView contract.
+     * @param context  context.
+     */
     HomePresenter(HomeMVP.View homeView, Context context) {
         this.context = context;
         this.homeView = homeView;
@@ -46,7 +61,7 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
 
     @Override
     public void onSuccess() {
-
+        homeView.hideProgressBar();
     }
 
     @Override
@@ -62,7 +77,15 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
         homeView.onNotifyAdapter();
     }
 
-
+    /**
+     * Filter data which needs to be displayed on UI.
+     *
+     * @param recordsModels models which has important data.
+     * @param yearSession   year eg. 90's/ 200's.
+     * @param startYear     start year for data to be displayed.
+     * @param endYear       till end year for which data is displayed.
+     * @return filtered {@link ArrayList<RecordsModel>}
+     */
     private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
         int quarter = 1;
         double totalData = 0;

@@ -19,12 +19,24 @@ import assignment.coding.com.networkdataviewer.ui.widgets.dialog.ProgressDialogF
 
 public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresenter<V>> extends AppCompatActivity implements BaseMVP.View {
 
-    Bundle presenterStateBundle = new Bundle();
-
+    /**
+     * Flag which maintains the state of  progress bar.
+     */
     private boolean isProgressShowing;
 
+    /**
+     * Abstract method which is forced to be implemented by the child presenter class for keeping the reference in base class.
+     *
+     * @return presenter.
+     */
     protected abstract BaseMVP.Presenter getPresenter();
 
+
+    /**
+     * Layout which needs to be displayed on activity.
+     *
+     * @return layout ID.
+     */
     @LayoutRes
     protected abstract int activityLayout();
 
@@ -42,7 +54,7 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-       // getPresenter().onSaveInstanceState(presenterStateBundle);
+
     }
 
 
@@ -74,9 +86,8 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
 
     @Override
     public void showProgress(@StringRes int resId) {
-        showProgress(R.string.in_progress,false);
+        showProgress(R.string.in_progress, false);
     }
-
 
 
     /**
@@ -88,6 +99,13 @@ public abstract class BaseActivity<V extends BaseMVP.View, P extends BasePresent
         ft.replace(R.id.container, fragment).commit();
     }
 
+    /**
+     * Method shows progress on the UI.
+     *
+     * @param resId resource ID.
+     *
+     * @param cancelable flag which is used for making alert dialog cancelable/non cancelable.
+     */
     private void showProgress(int resId, boolean cancelable) {
         String msg = getString(R.string.in_progress);
         if (resId != 0) {

@@ -12,18 +12,49 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import assignment.coding.com.networkdataviewer.R;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.BaseMVP;
 import assignment.coding.com.networkdataviewer.ui.base.mvp.presenter.BasePresenter;
+import assignment.coding.com.networkdataviewer.ui.widgets.dialog.ProgressDialogFragment;
 
+/**
+ * Base class for all the fragments used in project, it must extend this class.
+ *
+ * @param <V> view contract.
+ * @param <P> presenter.
+ */
 public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresenter<V>> extends Fragment implements BaseMVP.View {
 
+    /**
+     * Flag which maintains the state of  progress bar.
+     */
+    private boolean isProgressShowing;
+    /**
+     * Callback to the view.
+     */
     protected BaseMVP.View callback;
 
+    /**
+     * Layout to be displayed to UI.
+     *
+     * @return layout id.
+     */
     @LayoutRes
     protected abstract int fragmentLayout();
 
+    /**
+     * Getter for presenter.
+     *
+     * @return {@link BaseMVP.Presenter}
+     */
     protected abstract BaseMVP.Presenter getPresenter();
 
+    /**
+     * Callback when fragment is created.
+     *
+     * @param view               view.
+     * @param savedInstanceState bundle.
+     */
     protected abstract void onFragmentCreated(@NonNull View view, @Nullable Bundle savedInstanceState);
 
     @Override
@@ -81,10 +112,6 @@ public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresent
         callback.showProgress(resId);
     }
 
-    @Override
-    public void hideProgress() {
-        if (callback != null) callback.hideProgress();
-    }
 
     @Override
     public void showMessage(@StringRes int titleRes, @StringRes int msgRes) {
@@ -101,8 +128,44 @@ public abstract class BaseFragment<V extends BaseMVP.View, P extends BasePresent
         callback.showErrorMessage(msgRes);
     }
 
+    /**
+     * This method checks if view is safe/ not in destroying state.
+     *
+     * @return safe view.
+     */
     protected boolean isSafe() {
         return getView() != null && getActivity() != null && !getActivity().isFinishing();
+    }
+    /**
+     * Method shows progress on the UI.
+     *
+     * @param resId resource ID.
+     *
+     * @param cancelable flag which is used for making alert dialog cancelable/non cancelable.
+     */
+    public void showProgressBar(int resId, boolean cancelable) {
+        String msg = getString(R.string.in_progress);
+        if (resId != 0) {
+            msg = getString(resId);
+        }
+        if (!isProgressShowing && !getActivity().isFinishing()) {
+            ProgressDialogFragment fragment = (ProgressDialogFragment)getActivity(). getSupportFragmentManager().findFragmentByTag(
+                    ProgressDialogFragment.TAG);
+            if (fragment == null) {
+                isProgressShowing = true;
+                fragment = ProgressDialogFragment.newInstance(msg, cancelable);
+                fragment.show(getActivity().getSupportFragmentManager(), ProgressDialogFragment.TAG);
+            }
+        }
+    }
+
+    @Override
+    public void hideProgress() {
+        ProgressDialogFragment fragment = (ProgressDialogFragment) getActivity().getSupportFragmentManager().findFragmentByTag(ProgressDialogFragment.TAG);
+        if (fragment != null) {
+            fragment.dismiss();
+            isProgressShowing = false;
+        }
     }
 
 }
