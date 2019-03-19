@@ -17,6 +17,10 @@ import assignment.coding.com.networkdataviewer.data.model.ResultsModel;
  * Converts server data to models.
  */
 public class NetworkUIDataConverter {
+
+    public NetworkUIDataConverter() {
+    }
+
     /**
      * Logger.
      */
@@ -27,7 +31,7 @@ public class NetworkUIDataConverter {
      *
      * @param jsonString response from server.
      */
-    public static NetworkDataModel parseJsonAsObject(String jsonString) {
+    public  NetworkDataModel parseJsonAsObject(String jsonString) {
         ArrayList<RecordsModel> recordsModelList = new ArrayList<>();
         NetworkDataModel networkDataModel = new NetworkDataModel();
         ResultsModel resultsModel = new ResultsModel();

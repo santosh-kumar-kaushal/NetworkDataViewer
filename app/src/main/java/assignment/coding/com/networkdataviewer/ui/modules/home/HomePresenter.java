@@ -49,7 +49,7 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
      * @param homeView contract.
      * @param context  context.
      */
-    HomePresenter(HomeMVP.View homeView, Context context) {
+   public HomePresenter(HomeMVP.View homeView, Context context) {
         this.context = context;
         this.homeView = homeView;
         dataBaseHandler = new DataBaseHandler(context);
@@ -67,7 +67,7 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
     @Override
     public void onReceive(String response) {
         ArrayList<RecordsModel> recordsModelArrayList;
-        NetworkDataModel networkDataModel = NetworkUIDataConverter.parseJsonAsObject(response);
+        NetworkDataModel networkDataModel = new NetworkUIDataConverter().parseJsonAsObject(response);
         recordsModelArrayList = filterYearDataForRecords(networkDataModel.getResultsModel().getRecordsModelList(), 2000, 8, 18);
         //Adding records model to database.
         for (RecordsModel recordsModel : recordsModelArrayList) {
@@ -86,7 +86,7 @@ public class HomePresenter extends BasePresenter<HomeMVP.View> implements HomeMV
      * @param endYear       till end year for which data is displayed.
      * @return filtered {@link ArrayList<RecordsModel>}
      */
-    private ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
+    public ArrayList<RecordsModel> filterYearDataForRecords(ArrayList<RecordsModel> recordsModels, int yearSession, int startYear, int endYear) {
         int quarter = 1;
         double totalData = 0;
         double previous = 0;

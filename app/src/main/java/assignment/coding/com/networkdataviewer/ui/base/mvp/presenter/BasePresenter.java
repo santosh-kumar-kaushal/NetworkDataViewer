@@ -37,7 +37,7 @@ public class BasePresenter<V extends BaseMVP.View> implements BaseMVP.Presenter 
      * @return id.
      */
     @StringRes
-    private int getPrettifiedErrorMessage(@Nullable Throwable throwable) {
+    public int getPrettifiedErrorMessage(@Nullable Throwable throwable) {
         int resId = R.string.network_error;
         if (throwable instanceof DataFetchingException) {
             resId = R.string.network_error;
